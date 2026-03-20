@@ -1,210 +1,212 @@
-let clientes=[]
-let pets=[]
-let produtos=[]
-let carrinho=[]
+let clientes = []
+let pets = []
+let produtos = []
+let carrinho = []
 
-// CLIENTE
+function criarCliente() {
+  let nome = clienteNome.value
+  let email = clienteEmail.value
+  let vip = clienteVip.checked
 
-function criarCliente(){
+  if (nome == "") {
+    alert("Nome inválido")
+    return
+  }
 
-let nome=clienteNome.value
-let email=clienteEmail.value
-let vip=clienteVip.checked
+  if (!email.includes("@")) {
+    alert("Email inválido")
+    return
+  }
 
-if(nome==""){
-alert("Nome inválido")
-return
+  clientes.push({ nome, email, vip })
+
+  renderClientes()
 }
 
-if(!email.includes("@")){
-alert("Email inválido")
-return
+function renderClientes() {
+  listaClientes.innerHTML = ""
+
+  clientes.forEach((c) => {
+    let li = document.createElement("li")
+    li.innerText = c.nome + " - " + c.email + (c.vip ? " (VIP)" : "")
+    listaClientes.appendChild(li)
+  })
 }
 
-clientes.push({nome,email,vip})
+function cadastrarPet() {
+  let nome = petNome.value
+  let tipo = petTipo.value
+  let idade = parseInt(petIdade.value, 10)
 
-renderClientes()
+  if (nome == "") {
+    alert("Pet precisa de nome")
+    return
+  }
 
+  if (tipo == null || String(tipo).trim() === "") {
+    alert("Pet precisa de tipo")
+    return
+  }
+
+  if (Number.isNaN(idade) || idade < 0) {
+    alert("Idade inválida")
+    return
+  }
+
+  pets.push({ nome, tipo, idade })
+
+  renderPets()
 }
 
-function renderClientes(){
+function renderPets() {
+  listaPets.innerHTML = ""
 
-listaClientes.innerHTML=""
-
-clientes.forEach(c=>{
-let li=document.createElement("li")
-li.innerText=c.nome+" - "+c.email
-listaClientes.appendChild(li)
-})
-
+  pets.forEach((p) => {
+    let li = document.createElement("li")
+    li.innerText = p.nome + " (" + p.tipo + ")"
+    listaPets.appendChild(li)
+  })
 }
 
-// PET
+function criarProduto() {
+  let nome = produtoNome.value
+  let preco = parseFloat(produtoPreco.value)
 
-function cadastrarPet(){
+  if (nome == null || String(nome).trim() === "") {
+    alert("Nome do produto inválido")
+    return
+  }
 
-let nome=petNome.value
-let tipo=petTipo.value
-let idade=parseInt(petIdade.value)
+  if (Number.isNaN(preco) || preco <= 0) {
+    alert("Preço inválido")
+    return
+  }
 
-if(nome==""){
-alert("Pet precisa de nome")
-return
+  produtos.push({ nome, preco })
+
+  renderProdutos()
 }
 
-pets.push({nome,tipo,idade})
+function renderProdutos() {
+  listaProdutos.innerHTML = ""
+  produtoSelect.innerHTML = ""
 
-renderPets()
+  produtos.forEach((p, i) => {
+    let li = document.createElement("li")
+    li.innerText = p.nome + " - R$ " + p.preco
+    listaProdutos.appendChild(li)
 
+    let op = document.createElement("option")
+    op.value = i
+    op.innerText = p.nome
+    produtoSelect.appendChild(op)
+  })
 }
 
-function renderPets(){
+function adicionarCarrinho() {
+  let idx = produtoSelect.value
+  let p = produtos[idx]
 
-listaPets.innerHTML=""
+  if (!p) {
+    alert("Selecione um produto")
+    return
+  }
 
-pets.forEach(p=>{
-let li=document.createElement("li")
-li.innerText=p.nome+" ("+p.tipo+")"
-listaPets.appendChild(li)
-})
+  if (p.preco === 0 || p.preco <= 0) {
+    alert("Produto com preço inválido para o carrinho")
+    return
+  }
 
+  carrinho.push(p)
+
+  renderCarrinho()
 }
 
-// PRODUTOS
+function removerCarrinho() {
+  carrinho.shift()
 
-function criarProduto(){
-
-let nome=produtoNome.value
-let preco=parseFloat(produtoPreco.value)
-
-if(preco<0){
-alert("Preço inválido")
-return
+  renderCarrinho()
 }
 
-produtos.push({nome,preco})
+function renderCarrinho() {
+  listaCarrinho.innerHTML = ""
 
-renderProdutos()
+  carrinho.forEach((p) => {
+    let li = document.createElement("li")
+    li.innerText = p.nome + " - " + p.preco
+    listaCarrinho.appendChild(li)
+  })
 
+  calcularTotal()
 }
 
-function renderProdutos(){
+function calcularTotal() {
+  let subtotal = 0
 
-listaProdutos.innerHTML=""
-produtoSelect.innerHTML=""
+  carrinho.forEach((p) => {
+    subtotal += p.preco
+  })
 
-produtos.forEach((p,i)=>{
+  let total = subtotal
 
-let li=document.createElement("li")
-li.innerText=p.nome+" - R$ "+p.preco
-listaProdutos.appendChild(li)
+  const vipCompra =
+    typeof compraClienteVip !== "undefined" && compraClienteVip && compraClienteVip.checked
 
-let op=document.createElement("option")
-op.value=i
-op.innerText=p.nome
-produtoSelect.appendChild(op)
+  if (vipCompra) {
+    total *= 0.85
+  } else if (total > 100) {
+    total *= 0.9
+  }
 
-})
+  total = Number(total.toFixed(2))
+  const texto = total.toFixed(2)
 
+  document.getElementById("total").innerText = texto
+
+  return texto
 }
 
-// CARRINHO
+function finalizarCompra() {
+  alert("Compra finalizada: " + calcularTotal())
 
-function adicionarCarrinho(){
+  carrinho = []
 
-let p=produtos[produtoSelect.value]
-
-carrinho.push(p)
-
-renderCarrinho()
-
+  renderCarrinho()
 }
-
-function removerCarrinho(){
-
-carrinho.shift()
-
-renderCarrinho()
-
-}
-
-function renderCarrinho(){
-
-listaCarrinho.innerHTML=""
-
-carrinho.forEach(p=>{
-
-let li=document.createElement("li")
-li.innerText=p.nome+" - "+p.preco
-listaCarrinho.appendChild(li)
-
-})
-
-calcularTotal()
-
-}
-
-// TOTAL
-
-function calcularTotal(){
-
-let total=0
-
-carrinho.forEach(p=>{
-
-total+=p.preco
-
-})
-
-if(total>100){
-total*=0.9
-}
-
-total=total.toFixed(2)
-
-document.getElementById("total").innerText=total
-
-return total
-
-}
-
-// FINALIZAR
-
-function finalizarCompra(){
-
-alert("Compra finalizada: "+calcularTotal())
-
-carrinho=[]
-
-renderCarrinho()
-
-}
-
-
-// CARROSSEL
 
 let slideIndex = 0
 
-function nextSlide(){
-slideIndex++
-updateSlide()
+function nextSlide() {
+  slideIndex++
+  updateSlide()
 }
 
-function prevSlide(){
-slideIndex--
-updateSlide()
+function prevSlide() {
+  slideIndex--
+  updateSlide()
 }
 
-function updateSlide(){
+function updateSlide() {
+  const slides = document.querySelector(".slides")
+  const total = document.querySelectorAll(".slide").length
 
-const slides = document.querySelector(".slides")
-const total = document.querySelectorAll(".slide").length
+  if (slideIndex >= total) slideIndex = 0
+  if (slideIndex < 0) slideIndex = total - 1
 
-if(slideIndex >= total) slideIndex = 0
-if(slideIndex < 0) slideIndex = total - 1
-
-slides.style.transform = "translateX(-" + slideIndex * 100 + "%)"
-
+  slides.style.transform = "translateX(-" + slideIndex * 100 + "%)"
 }
 
-setInterval(nextSlide,4000)
+setInterval(nextSlide, 4000)
+
+if (typeof process !== "undefined" && process.env.NODE_ENV === "test" && typeof window !== "undefined") {
+  window.__petshopTestHelpers = {
+    injectProduto(p) {
+      produtos.push(p)
+      renderProdutos()
+    },
+    limparCarrinho() {
+      carrinho = []
+      renderCarrinho()
+    },
+  }
+}
